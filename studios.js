@@ -2,12 +2,8 @@
     'use strict';
 
     /**
-     * STUDIOS MASTER (Unified)
-     * Developed by: Syvyj
-     * Version: 1.2.0
-     * Description: Unified studio collections for Lampa (Netflix, HBO, Disney+, etc.)
-     * 
-     * Translated to Russian, watch_region UA removed.
+     * STUDIOS MASTER (Unified) — RU
+     * without watch_region, without with_watch_providers
      */
 
     var SERVICE_CONFIGS = {
@@ -15,7 +11,7 @@
             title: 'Netflix',
             icon: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.5 2L16.5 22" stroke="#E50914" stroke-width="4"/><path d="M7.5 2L7.5 22" stroke="#E50914" stroke-width="4"/><path d="M7.5 2L16.5 22" stroke="#E50914" stroke-width="4"/></svg>',
             categories: [
-                { "title": "Новые фильмы", "url": "discover/movie", "params": { "with_watch_providers": "8", "sort_by": "primary_release_date.desc", "primary_release_date.lte": "{current_date}", "vote_count.gte": "5" } },
+                { "title": "Новые фильмы", "url": "discover/movie", "params": { "with_companies": "213", "sort_by": "primary_release_date.desc", "primary_release_date.lte": "{current_date}", "vote_count.gte": "5" } },
                 { "title": "Новые сериалы", "url": "discover/tv", "params": { "with_networks": "213", "sort_by": "first_air_date.desc", "first_air_date.lte": "{current_date}", "vote_count.gte": "5" } },
                 { "title": "В тренде на Netflix", "url": "discover/tv", "params": { "with_networks": "213", "sort_by": "popularity.desc" } },
                 { "title": "Экшн и блокбастеры", "url": "discover/movie", "params": { "with_companies": "213", "with_genres": "28,12", "sort_by": "popularity.desc" } },
@@ -32,13 +28,13 @@
             title: 'Apple TV+',
             icon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>',
             categories: [
-                { "title": "Новые фильмы", "url": "discover/movie", "params": { "with_watch_providers": "350", "sort_by": "primary_release_date.desc", "primary_release_date.lte": "{current_date}", "vote_count.gte": "5" } },
-                { "title": "Новые сериалы", "url": "discover/tv", "params": { "with_watch_providers": "350", "sort_by": "first_air_date.desc", "first_air_date.lte": "{current_date}", "vote_count.gte": "5" } },
-                { "title": "Хиты Apple TV+", "url": "discover/tv", "params": { "with_watch_providers": "350", "sort_by": "popularity.desc" } },
-                { "title": "Apple Original Films", "url": "discover/movie", "params": { "with_watch_providers": "350", "sort_by": "release_date.desc", "vote_count.gte": "10" } },
-                { "title": "Фантастика Apple", "url": "discover/tv", "params": { "with_watch_providers": "350", "with_genres": "10765", "sort_by": "vote_average.desc", "vote_count.gte": "200" } },
-                { "title": "Комедии и Feel-good", "url": "discover/tv", "params": { "with_watch_providers": "350", "with_genres": "35", "sort_by": "popularity.desc" } },
-                { "title": "Триллеры и детективы", "url": "discover/tv", "params": { "with_watch_providers": "350", "with_genres": "9648,80", "sort_by": "popularity.desc" } }
+                { "title": "Новые фильмы", "url": "discover/movie", "params": { "with_companies": "149156", "sort_by": "primary_release_date.desc", "primary_release_date.lte": "{current_date}", "vote_count.gte": "5" } },
+                { "title": "Новые сериалы", "url": "discover/tv", "params": { "with_networks": "2552", "sort_by": "first_air_date.desc", "first_air_date.lte": "{current_date}", "vote_count.gte": "5" } },
+                { "title": "Хиты Apple TV+", "url": "discover/tv", "params": { "with_networks": "2552", "sort_by": "popularity.desc" } },
+                { "title": "Apple Original Films", "url": "discover/movie", "params": { "with_companies": "149156", "sort_by": "release_date.desc", "vote_count.gte": "10" } },
+                { "title": "Фантастика Apple", "url": "discover/tv", "params": { "with_networks": "2552", "with_genres": "10765", "sort_by": "vote_average.desc", "vote_count.gte": "50" } },
+                { "title": "Комедии и Feel-good", "url": "discover/tv", "params": { "with_networks": "2552", "with_genres": "35", "sort_by": "popularity.desc" } },
+                { "title": "Триллеры и детективы", "url": "discover/tv", "params": { "with_networks": "2552", "with_genres": "9648,80", "sort_by": "popularity.desc" } }
             ]
         },
         'hbo': {
@@ -62,7 +58,7 @@
             icon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.787 15.292c-.336-.43-2.222-.204-3.069-.103-.257.031-.296-.193-.065-.356 1.504-1.056 3.968-.75 4.255-.397.288.357-.076 2.827-1.485 4.007-.217.18-.423.084-.327-.155.317-.792 1.027-2.566.69-2.996"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>',
             categories: [
                 { "title": "В тренде на Prime Video", "url": "discover/tv", "params": { "with_networks": "1024", "sort_by": "popularity.desc" } },
-                { "title": "Новые фильмы", "url": "discover/movie", "params": { "with_watch_providers": "119", "sort_by": "primary_release_date.desc", "primary_release_date.lte": "{current_date}", "vote_count.gte": "5" } },
+                { "title": "Новые фильмы", "url": "discover/movie", "params": { "with_companies": "21|1024", "sort_by": "primary_release_date.desc", "primary_release_date.lte": "{current_date}", "vote_count.gte": "5" } },
                 { "title": "Новые сериалы", "url": "discover/tv", "params": { "with_networks": "1024", "sort_by": "first_air_date.desc", "first_air_date.lte": "{current_date}", "vote_count.gte": "5" } },
                 { "title": "Жёсткий экшн и антигерои", "url": "discover/tv", "params": { "with_networks": "1024", "with_genres": "10765,10759", "sort_by": "popularity.desc" } },
                 { "title": "Блокбастеры MGM и Amazon", "url": "discover/movie", "params": { "with_companies": "1024|21", "sort_by": "revenue.desc" } },
@@ -74,8 +70,8 @@
             title: 'Disney+',
             icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19,3V7m2-2H17m-10.31,4L8.69,21m-5.69-7c0-3,5.54-4.55,9-2m-9,2s12.29-2,13.91,6.77c1.09,5.93-6.58,6.7-9.48,5.89S3,16.06,3,14.06"/></svg>',
             categories: [
-                { "title": "Новые фильмы на Disney+", "url": "discover/movie", "params": { "with_watch_providers": "337", "sort_by": "primary_release_date.desc", "primary_release_date.lte": "{current_date}", "vote_count.gte": "5" } },
-                { "title": "Новые сериалы на Disney+", "url": "discover/tv", "params": { "with_watch_providers": "337", "sort_by": "first_air_date.desc", "first_air_date.lte": "{current_date}", "vote_count.gte": "5" } },
+                { "title": "Новые фильмы Disney", "url": "discover/movie", "params": { "with_companies": "2|3|420|6125", "sort_by": "primary_release_date.desc", "primary_release_date.lte": "{current_date}", "vote_count.gte": "5" } },
+                { "title": "Новые сериалы Disney+", "url": "discover/tv", "params": { "with_networks": "2739", "sort_by": "first_air_date.desc", "first_air_date.lte": "{current_date}", "vote_count.gte": "5" } },
                 { "title": "Marvel: Киновселенная (MCU)", "url": "discover/movie", "params": { "with_companies": "420", "sort_by": "release_date.desc", "vote_count.gte": "200" } },
                 { "title": "Marvel: сериалы", "url": "discover/tv", "params": { "with_companies": "420", "with_networks": "2739", "sort_by": "first_air_date.desc" } },
                 { "title": "Звёздные войны: фильмы", "url": "discover/movie", "params": { "with_companies": "1", "sort_by": "release_date.asc" } },
@@ -120,84 +116,20 @@
             title: 'Познавательное',
             icon: '<svg viewBox="0 0 24 24" fill="#FF9800"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>',
             categories: [
-                {
-                    "title": "Новые выпуски: Discovery, NatGeo, BBC",
-                    "url": "discover/tv",
-                    "params": {
-                        "with_networks": "64|91|43|2696|4|65",
-                        "sort_by": "first_air_date.desc",
-                        "first_air_date.lte": "{current_date}",
-                        "vote_count.gte": "0"
-                    }
-                },
+                { "title": "Новые выпуски: Discovery, NatGeo, BBC", "url": "discover/tv", "params": { "with_networks": "64|91|43|2696|4|65", "sort_by": "first_air_date.desc", "first_air_date.lte": "{current_date}", "vote_count.gte": "0" } },
                 { "title": "Discovery Channel: хиты", "url": "discover/tv", "params": { "with_networks": "64", "sort_by": "popularity.desc" } },
                 { "title": "National Geographic: мир вокруг", "url": "discover/tv", "params": { "with_networks": "43", "sort_by": "popularity.desc" } },
                 { "title": "Animal Planet: животные", "url": "discover/tv", "params": { "with_networks": "91", "sort_by": "popularity.desc" } },
                 { "title": "BBC Earth: природа (высокий рейтинг)", "url": "discover/tv", "params": { "with_networks": "4", "with_genres": "99", "sort_by": "vote_average.desc", "vote_count.gte": "50" } },
-                {
-                    "title": "Кулинарные битвы и шеф-повара",
-                    "url": "discover/tv",
-                    "params": {
-                        "with_genres": "10764",
-                        "with_keywords": "222083",
-                        "without_keywords": "10636,5481",
-                        "sort_by": "popularity.desc"
-                    }
-                },
-                {
-                    "title": "Голос, танцы и шоу талантов",
-                    "url": "discover/tv",
-                    "params": {
-                        "with_genres": "10764",
-                        "with_keywords": "4542|4568|2643",
-                        "without_keywords": "5481,9714",
-                        "sort_by": "popularity.desc"
-                    }
-                },
-                {
-                    "title": "Шоу о выживании",
-                    "url": "discover/tv",
-                    "params": {
-                        "with_genres": "10764",
-                        "with_keywords": "5481|10348",
-                        "sort_by": "popularity.desc"
-                    }
-                },
-                {
-                    "title": "Наука, техника и эксперименты",
-                    "url": "discover/tv",
-                    "params": {
-                        "with_genres": "99",
-                        "with_keywords": "12554|4924",
-                        "sort_by": "popularity.desc"
-                    }
-                },
-                {
-                    "title": "Путешествия и туризм",
-                    "url": "discover/tv",
-                    "params": {
-                        "with_genres": "99,10764",
-                        "with_keywords": "9714",
-                        "sort_by": "vote_average.desc",
-                        "vote_count.gte": "20"
-                    }
-                },
-                {
-                    "title": "True Crime: реальные расследования",
-                    "url": "discover/tv",
-                    "params": {
-                        "with_genres": "99",
-                        "with_keywords": "10714|9840",
-                        "sort_by": "popularity.desc"
-                    }
-                }
+                { "title": "Кулинарные битвы и шеф-повара", "url": "discover/tv", "params": { "with_genres": "10764", "with_keywords": "222083", "without_keywords": "10636,5481", "sort_by": "popularity.desc" } },
+                { "title": "Голос, танцы и шоу талантов", "url": "discover/tv", "params": { "with_genres": "10764", "with_keywords": "4542|4568|2643", "without_keywords": "5481,9714", "sort_by": "popularity.desc" } },
+                { "title": "Шоу о выживании", "url": "discover/tv", "params": { "with_genres": "10764", "with_keywords": "5481|10348", "sort_by": "popularity.desc" } },
+                { "title": "Наука, техника и эксперименты", "url": "discover/tv", "params": { "with_genres": "99", "with_keywords": "12554|4924", "sort_by": "popularity.desc" } },
+                { "title": "Путешествия и туризм", "url": "discover/tv", "params": { "with_genres": "99,10764", "with_keywords": "9714", "sort_by": "vote_average.desc", "vote_count.gte": "20" } },
+                { "title": "True Crime: реальные расследования", "url": "discover/tv", "params": { "with_genres": "99", "with_keywords": "10714|9840", "sort_by": "popularity.desc" } }
             ]
         }
     };
-
-    // -----------------------------------------------------------------
-    // COMPONENTS
-    // -----------------------------------------------------------------
 
     function StudiosMain(object) {
         var comp = new Lampa.InteractionMain(object);
@@ -247,7 +179,7 @@
                             var d = new Date();
                             val = [d.getFullYear(), ('0' + (d.getMonth() + 1)).slice(-2), ('0' + d.getDate()).slice(-2)].join('-');
                         }
-                        params.push(key + '=' + val);
+                        params.push(key + '=' + encodeURIComponent(val));
                     }
                 }
 
@@ -293,7 +225,7 @@
                         var d = new Date();
                         val = [d.getFullYear(), ('0' + (d.getMonth() + 1)).slice(-2), ('0' + d.getDate()).slice(-2)].join('-');
                     }
-                    params.push(key + '=' + val);
+                    params.push(key + '=' + encodeURIComponent(val));
                 }
             }
             return Lampa.TMDB.api(object.url + '?' + params.join('&'));
@@ -313,10 +245,6 @@
         return comp;
     }
 
-    // -----------------------------------------------------------------
-    // INJECTION
-    // -----------------------------------------------------------------
-
     function startPlugin() {
         if (window.plugin_studios_master_ready) return;
         window.plugin_studios_master_ready = true;
@@ -325,13 +253,13 @@
         Lampa.Component.add('studios_view', StudiosView);
 
         if (!$('#studios-unified-css').length) {
-            $('body').append(`
-                <style id="studios-unified-css">
-                    .studios_main .card--wide { width: 18.3em !important; }
-                    .studios_view .card--wide { width: 18.3em !important; }
-                    .studios_view .category-full { padding-top: 1em; }
-                </style>
-            `);
+            $('body').append(
+                '<style id="studios-unified-css">' +
+                '.studios_main .card--wide { width: 18.3em !important; }' +
+                '.studios_view .card--wide { width: 18.3em !important; }' +
+                '.studios_view .category-full { padding-top: 1em; }' +
+                '</style>'
+            );
         }
 
         function addMenuButtons() {
@@ -340,13 +268,12 @@
 
             Object.keys(SERVICE_CONFIGS).forEach(function (sid) {
                 var conf = SERVICE_CONFIGS[sid];
-
                 if (menu.find('.menu__item[data-sid="' + sid + '"]').length) return;
 
-                var btn = $(`<li class="menu__item selector" data-action="studios_action_${sid}" data-sid="${sid}">
-                    <div class="menu__ico">${conf.icon}</div>
-                    <div class="menu__text">${conf.title}</div>
-                </li>`);
+                var btn = $('<li class="menu__item selector" data-action="studios_action_' + sid + '" data-sid="' + sid + '">' +
+                    '<div class="menu__ico">' + conf.icon + '</div>' +
+                    '<div class="menu__text">' + conf.title + '</div>' +
+                    '</li>');
 
                 btn.on('hover:enter', function () {
                     Lampa.Activity.push({
@@ -373,13 +300,8 @@
             if (window.appready && $('.menu .menu__list').eq(0).length) {
                 addMenuButtons();
             }
-        }, 2000);
+        }, 3000);
     }
 
-    if (window.appready) startPlugin();
-    else {
-        Lampa.Listener.follow('app', function (e) {
-            if (e.type == 'ready') startPlugin();
-        });
-    }
+    if (!window.plugin_studios_master_ready) startPlugin();
 })();
