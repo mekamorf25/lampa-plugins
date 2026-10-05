@@ -558,6 +558,7 @@
        ИНФО НА ПОЛНОЙ КАРТОЧКЕ
        (рейтинг, статус, длительность, сезоны/серии)
        ========================================================= */
+    /* Формат времени: 2 ч 25 мин */
     function fmtRuntime(min) {
         if (!min || min <= 0) return '';
         var h = Math.floor(min / 60), m = min % 60;
@@ -566,21 +567,100 @@
         return m + ' мин';
     }
 
-    // Собирает и вставляет строку бейджей под заголовком
+    /* Строка инфо на полной карточке — как на скрине */
     function buildFullInfo(movie) {
         if (!movie || Lampa.Storage.field('full_card_info') == false) return;
 
         $('#local-full-info').remove();
 
-        var bits = [];
         var isSeries = !!(movie.name || movie.first_air_date || movie.number_of_seasons);
+        var parts = [];
 
-        // Рейтинг TMDB
-        if (movie.vote_average && movie.vote_average > 0) {
-            bits.push('<span class="local-info-badge local-info-rate">★ ' +
-                Number(movie.vote_average).toFixed(1) + '</span>');
+        // --- Длительность (главное, как на скрине) ---
+        var runtimeText = '';
+        if (isSeries) {
+            var epMin = 0;
+            if (movie.episode_run_time && movie.episode_run_time.length) {
+                epMin = movie.episode_run_time[0];
+            } else if (movie.last_episode_to_air && movie.last_episode_to_air.runtime) {
+                epMin = movie.last_episode_to_air.runtime;
+            }
+            if (epMin) runtimeText = 'Длительность серии: ' + fmtRuntime(epMin);
+        } else if (movie.runtime) {
+            runtimeText = 'Длительность фильма: ' + fmtRuntime(movie.runtime);
         }
 
+        // --- Рейтинг TMDB ---
+        if (movie.vote_average && movie.vote_average > 0) {
+            parts.push('<span class="local-info-badge local-info-rate">★ ' +
+                Number(movie.vote_average).toFixed(1) + ' TMDB</span>');
+        }
+
+        // --- Статус ---
+        if (movie.status) {
+            var stMap = {
+                'Released': 'Выпущен',
+                'Ended': 'Завершён',
+                'Returning Series': 'В эфире',
+                'In Production': 'В производстве',
+                'Post Production': 'Постпродакшн',
+                'Canceled': 'Отменён',
+                'Cancelled': 'Отменён',
+                'On Hiatus': 'Пауза'
+            };
+            parts.push('<span class="local-info-badge local-info-status">' +
+                (stMap[movie.status] || movie.status) + '</span>');
+        }
+
+        // --- Сезоны / серии ---
+        if (isSeries) {
+            var seasons = movie.number_of_seasons || 0;
+            var episodes = movie.number_of_episodes || 0;
+            var se = [];
+            if (seasons) se.push(seasons + ' сез.');
+            if (episodes) se.push(episodes + ' сер.');
+            if (se.length) {
+                parts.push('<span class="local-info-badge">' + se.join(' · ') + '</span>');
+            }
+        }
+
+        if (!runtimeText && !parts.length) return;
+
+        // Стили под вид скрина (бирюзовая полоска длительности + бейджи)
+        if (!$('#local-full-info-css').length) {
+            $('body').append(
+                '<style id="local-full-info-css">' +
+                '#local-full-info{margin:.55em 0 .4em;display:flex;flex-direction:column;gap:.45em}' +
+                '#local-full-info .local-runtime{' +
+                'display:inline-block;padding:.35em .75em;border-radius:.45em;' +
+                'background:rgba(38,198,218,.22);color:#7fdbef;font-size:.95em;font-weight:600}' +
+                '#local-full-info .local-badges{display:flex;flex-wrap:wrap;gap:.4em;align-items:center}' +
+                '.local-info-badge{display:inline-block;padding:.25em .7em;border-radius:.5em;' +
+                'background:rgba(255,255,255,.12);font-size:.92em;font-weight:600}' +
+                '.local-info-rate{background:#f5c518;color:#111}' +
+                '.local-info-status{background:rgba(76,175,80,.25);color:#a5d6a7}' +
+                '</style>'
+            );
+        }
+
+        var html = '<div id="local-full-info">';
+        if (runtimeText) {
+            html += '<div class="local-runtime">' + runtimeText + '</div>';
+        }
+        if (parts.length) {
+            html += '<div class="local-badges">' + parts.join('') + '</div>';
+        }
+        html += '</div>';
+
+        // Вставка: после слогана, иначе после заголовка, иначе после блока деталей
+        var $tag = $('.full-start-new__tagline, .full-start__tagline').first();
+        var $title = $('.full-start-new__title, .full-start__title').first();
+        var $details = $('.full-start-new__details, .full-start__details, .full-start-new__body').first();
+
+        if ($tag.length) $tag.after(html);
+        else if ($title.length) $title.after(html);
+        else if ($details.length) $details.prepend(html);
+    }
         // Статус фильма/сериала
         if (movie.status) {
             var stMap = {
