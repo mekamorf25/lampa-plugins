@@ -1,26 +1,28 @@
 (function () {
     'use strict';
 
+    // Защита от повторного запуска плагина
     if (window.plugin_local_tricks_ready) return;
     window.plugin_local_tricks_ready = true;
 
     /* =========================================================
-       CSS
+       СТИЛИ: метки статуса сериала, прогресс сезона, часы
        ========================================================= */
     var css = document.createElement('style');
     css.id = 'local-tricks-css';
     css.textContent = [
-        /* --- статус сериала --- */
+        // Метка «Сериал» на карточке
         '.serial-status__type{position:absolute;left:0;top:.8em;padding:.2em .8em;font-size:.85em;border-radius:.5em;text-transform:uppercase;font-weight:700;z-index:2;box-shadow:0 2px 8px rgba(0,0,0,.2);letter-spacing:.04em;line-height:1.1;background:#ff4242;color:#fff}',
+        // Метка статуса (В эфире / Завершён / Пауза)
         '.serial-status__status{position:absolute;left:0;top:2.7em;padding:.2em .8em;font-size:.85em;border-radius:.5em;text-transform:uppercase;font-weight:700;z-index:2;box-shadow:0 2px 8px rgba(0,0,0,.2);letter-spacing:.04em;line-height:1.1}',
         '.serial-status__status[data-status="ended"]{background:#4CAF50;color:#fff}',
         '.serial-status__status[data-status="airing"]{background:#2196F3;color:#fff}',
         '.serial-status__status[data-status="paused"],.serial-status__status[data-status="canceled"]{background:#FFC107;color:#222}',
+        // Вариант 2 расположения меток (по углам)
         'body[data-status-badge-style="2"] .serial-status__type{top:0;left:0;border-radius:1.1em 0;box-shadow:none;background:rgba(0,0,0,.55)}',
         'body[data-status-badge-style="2"] .serial-status__status{top:0;left:auto;right:0;border-radius:0 1.1em;box-shadow:none;background:rgba(0,0,0,.55);color:#fff}',
         '.full-start-new__poster .serial-status__type,.full-start-new__poster .serial-status__status{font-size:.7em}',
-
-        /* --- прогресс сезона --- */
+        // Прогресс сезона: завершён (зелёный) / идёт (жёлтый)
         '.card--season-complete,.card--season-progress{position:absolute;left:0;bottom:.5em;z-index:12;width:fit-content;max-width:calc(100% - 1em);border-radius:0 .8em .8em 0;overflow:hidden;opacity:0;transition:opacity .22s ease}',
         '.card--season-complete{background:rgba(61,161,141,.85)}',
         '.card--season-progress{background:rgba(255,193,7,.85)}',
@@ -28,22 +30,12 @@
         '.card--season-complete div{color:#fff}',
         '.card--season-progress div{color:#000}',
         '.card--season-complete.show,.card--season-progress.show{opacity:1}',
-
-        /* --- торренты --- */
-        '#torrent_focus_style_ok .torrent-item.focus,.torrent-item.selector.focus{outline:3px solid #00e676!important;outline-offset:2px;box-shadow:0 0 12px rgba(0,230,118,.55)}',
-
-        /* --- часы в плеере --- */
-        '#MyClockDiv{position:fixed;z-index:100;font-size:1.4em;font-weight:600;color:#fff;text-shadow:0 1px 4px #000;pointer-events:none;bottom:90%;right:90%}',
-
-        /* --- плеер --- */
-        '#YOUTUBESTYLE_OK .player-panel{background:rgba(0,0,0,.75)!important}',
-        '#YOUTUBESTYLE_OK .player-panel .timeline__progress{background:#f00!important}'
+        // Часы поверх встроенного плеера
+        '#MyClockDiv{position:fixed;z-index:100;font-size:1.4em;font-weight:600;color:#fff;text-shadow:0 1px 4px #000;pointer-events:none;bottom:90%;right:90%}'
     ].join('\n');
     document.head.appendChild(css);
 
-    /* =========================================================
-       УТИЛИТЫ
-       ========================================================= */
+    /* Определяет, является ли карточка сериалом */
     function isTv(data) {
         if (!data) return false;
         if (data.name || data.first_air_date || data.number_of_seasons) return true;
@@ -51,6 +43,7 @@
         return t === 'tv' || t === 'serial';
     }
 
+    /* Запрос к TMDB через API Lampa */
     function tmdbGet(path, cb) {
         try {
             var net = new Lampa.Reguest();
@@ -64,62 +57,74 @@
     }
 
     /* =========================================================
-       1) КНОПКИ ШАПКИ + НАСТРОЙКИ UI
+       НАСТРОЙКИ И КНОПКИ ИНТЕРФЕЙСА
        ========================================================= */
     function startUi() {
+        // Раздел настроек «Tweaks (local)»
         Lampa.SettingsApi.addComponent({
             component: 'Local_Tricks',
             name: 'Tweaks (local)',
-            icon: '<svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97 0-.33-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65A.488.488 0 0 0 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.22-.08-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1 0 .33.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.08.74 1.69.99l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.66Z"/></svg>'
+            icon: '<svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97 0-.33-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65A.488.488 0 0 0 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.22-.08-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1 0 .33.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.08.74 1.69.99l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49.42l.38-2.65c.61-.25 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.66Z"/></svg>'
         });
 
-         /* перезагрузка */
+        /* ----- Кнопка перезагрузки в шапке ----- */
         Lampa.SettingsApi.addParam({
             component: 'Local_Tricks',
             param: { name: 'Reloadbutton', type: 'trigger', default: true },
-            field: { name: 'Кнопка перезагрузки', description: 'Иконка в шапке рядом с часами' },
+            field: {
+                name: 'Кнопка перезагрузки',
+                description: 'Оранжевая иконка в шапке рядом с часами'
+            },
             onChange: toggleHeadButtons
         });
 
+        // Создание кнопки в шапке
         function makeBtn(id, title, svg, fn) {
             var $b = $('<div class="head__action selector" id="' + id + '" title="' + title + '"><div style="width:1.5em;height:1.5em;display:flex;align-items:center;justify-content:center">' + svg + '</div></div>');
             $b.on('hover:enter hover:click hover:touch', fn);
             return $b;
         }
 
-        /* оранжевый кружок с двумя стрелками */
+        // Оранжевый кружок с двумя стрелками
         var svgReload =
             '<svg viewBox="0 0 24 24" width="22" height="22" xmlns="http://www.w3.org/2000/svg">' +
-            '<circle cx="12" cy="12" r="11" fill="#FF9800"/>' +
-            '<path fill="#fff" d="M12 6V3.5L8.5 7 12 10.5V8c2.76 0 5 2.24 5 5 0 .55-.09 1.08-.24 1.58l1.52.66C18.76 14.5 19 13.53 19 12.5 19 8.91 16.09 6 12.5 6H12zm0 12v2.5l3.5-3.5L12 13.5V16c-2.76 0-5-2.24-5-5 0-.55.09-1.08.24-1.58l-1.52-.66C5.24 9.5 5 10.47 5 11.5 5 15.09 7.91 18 11.5 18H12z"/>' +
+            '<path fill="none" stroke="#FF9800" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" ' +
+            'd="M20 12a8 8 0 0 0-14.5-4.9"/>' +
+            '<path fill="#FF9800" d="M5.5 3.5v4.5h4.5"/>' +
+            '<path fill="none" stroke="#FF9800" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" ' +
+            'd="M4 12a8 8 0 0 0 14.5 4.9"/>' +
+            '<path fill="#FF9800" d="M18.5 20.5v-4.5h-4.5"/>' +
             '</svg>';
 
         var $actions = $('#app > div.head > div > div.head__actions');
         if ($actions.length) {
-            /* убрать старые консоль/выход, если остались */
+            // Убираем старые кнопки консоли и выхода, если были
             $('#CONSOLE, #my_top_exit, #ExitButton').remove();
 
             if (!$('#RELOAD').length) {
                 $actions.append(makeBtn('RELOAD', 'Перезагрузка', svgReload, function () {
-                    location.reload();
+                    location.reload(); // Перезагрузка страницы Lampa
                 }));
             } else {
-                /* обновить иконку у уже существующей кнопки */
                 $('#RELOAD').find('div').html(svgReload);
             }
         }
 
+        // Показать / скрыть кнопку перезагрузки
         function toggleHeadButtons() {
             var on = Lampa.Storage.field('Reloadbutton') == true;
             $('#RELOAD')[on ? 'removeClass' : 'addClass']('hide');
         }
         toggleHeadButtons();
 
-        /* скрыть трейлеры */
+        /* ----- Скрыть ленту трейлеров на главной ----- */
         Lampa.SettingsApi.addParam({
             component: 'Local_Tricks',
             param: { name: 'NoTrailerMainPage', type: 'trigger', default: false },
-            field: { name: 'Скрыть трейлеры-новинки', description: 'Баннер на главной' },
+            field: {
+                name: 'Скрыть трейлеры-новинки',
+                description: 'Скрывает баннерную ленту на главной странице'
+            },
             onChange: function () {}
         });
         setInterval(function () {
@@ -133,14 +138,19 @@
                 if (!$('#NoTrailerMainPage').length) {
                     $('body').append('<style id="NoTrailerMainPage">.items-line:first-child{display:none!important}</style>');
                 }
-            } else $('#NoTrailerMainPage').remove();
+            } else {
+                $('#NoTrailerMainPage').remove();
+            }
         }, 900);
 
-        /* навигация */
+        /* ----- Скрыть нижнюю панель навигации ----- */
         Lampa.SettingsApi.addParam({
             component: 'Local_Tricks',
             param: { name: 'NavyBar', type: 'trigger', default: false },
-            field: { name: 'Скрыть панель навигации', description: '' },
+            field: {
+                name: 'Скрыть панель навигации',
+                description: 'Если неправильно определился тип устройства'
+            },
             onChange: function () {
                 $('#no_bar').remove();
                 if (Lampa.Storage.field('NavyBar') == true) {
@@ -152,11 +162,14 @@
             $('body').append('<style id="no_bar">.navigation-bar,.navigation-bar__body{display:none!important}</style>');
         }
 
-        /* anime / sisi */
+        /* ----- Скрыть Anime и «Клубничку» в меню ----- */
         Lampa.SettingsApi.addParam({
             component: 'Local_Tricks',
             param: { name: 'ANIME_FIX', type: 'trigger', default: false },
-            field: { name: 'Скрыть Anime в меню', description: '' },
+            field: {
+                name: 'Скрыть Anime в меню',
+                description: 'Убирает пункт Anime из бокового меню'
+            },
             onChange: function () {
                 $('[data-action=anime]')[Lampa.Storage.field('ANIME_FIX') == true ? 'hide' : 'show']();
             }
@@ -164,7 +177,10 @@
         Lampa.SettingsApi.addParam({
             component: 'Local_Tricks',
             param: { name: 'SISI_FIX', type: 'trigger', default: false },
-            field: { name: 'Скрыть «Клубничка»', description: '' },
+            field: {
+                name: 'Скрыть «Клубничка»',
+                description: 'Убирает взрослый раздел из меню'
+            },
             onChange: function () {
                 var on = Lampa.Storage.field('SISI_FIX') == true;
                 $('[data-action=sisi]')[on ? 'hide' : 'show']();
@@ -177,11 +193,14 @@
             $('li:contains("Клубничка")').hide();
         }
 
-        /* торренты */
+        /* ----- Контрастная рамка при выборе торрента ----- */
         Lampa.SettingsApi.addParam({
             component: 'Local_Tricks',
             param: { name: 'TORRENT_FIX', type: 'trigger', default: false },
-            field: { name: 'Контрастная рамка торрентов', description: '' },
+            field: {
+                name: 'Контрастная рамка торрентов',
+                description: 'Подсвечивает выбранный торрент зелёной рамкой'
+            },
             onChange: function () {
                 $('#torrent_focus_style').remove();
                 if (Lampa.Storage.field('TORRENT_FIX') == true) {
@@ -193,11 +212,14 @@
             $('body').append('<style id="torrent_focus_style">.torrent-item.focus,.torrent-item.selector.focus{outline:3px solid #00e676!important;outline-offset:2px;box-shadow:0 0 12px rgba(0,230,118,.55)}</style>');
         }
 
-        /* часы в плеере */
+        /* ----- Часы во встроенном плеере ----- */
         Lampa.SettingsApi.addParam({
             component: 'Local_Tricks',
             param: { name: 'ClockInPlayer', type: 'trigger', default: false },
-            field: { name: 'Часы во встроенном плеере', description: '' },
+            field: {
+                name: 'Часы во встроенном плеере',
+                description: 'Показывает текущее время поверх видео'
+            },
             onChange: function () {}
         });
         setInterval(function () {
@@ -222,11 +244,14 @@
             $('#MyClockDiv').text(t);
         }, 500);
 
-        /* стиль плеера */
+        /* ----- Стилизация панели плеера ----- */
         Lampa.SettingsApi.addParam({
             component: 'Local_Tricks',
             param: { name: 'YouTubeStyle', type: 'trigger', default: false },
-            field: { name: 'Стилизация плеера', description: 'Контрастная панель' },
+            field: {
+                name: 'Стилизация плеера',
+                description: 'Более контрастная панель управления'
+            },
             onChange: function () {
                 $('#YOUTUBESTYLE').remove();
                 if (Lampa.Storage.field('YouTubeStyle') == true) {
@@ -238,11 +263,14 @@
             $('body').append('<style id="YOUTUBESTYLE">.player-panel{background:rgba(0,0,0,.75)!important}.player-panel .timeline__progress{background:#f00!important}</style>');
         }
 
-        /* настройки статусов / сезонов */
+        /* ----- Статус сериала на карточках ----- */
         Lampa.SettingsApi.addParam({
             component: 'Local_Tricks',
             param: { name: 'serial_status_enabled', type: 'trigger', default: true },
-            field: { name: 'Статус сериала на карточках', description: 'В эфире / Завершён / Пауза' },
+            field: {
+                name: 'Статус сериала на карточках',
+                description: 'Метки: В эфире, Завершён, Пауза'
+            },
             onChange: function () {}
         });
         Lampa.SettingsApi.addParam({
@@ -250,10 +278,16 @@
             param: {
                 name: 'serial_status_style',
                 type: 'select',
-                values: { '1': 'Вариант 1 (слева, цвет)', '2': 'Вариант 2 (углы)' },
+                values: {
+                    '1': 'Вариант 1 (слева, цветные)',
+                    '2': 'Вариант 2 (по углам)'
+                },
                 default: '1'
             },
-            field: { name: 'Расположение статуса', description: '' },
+            field: {
+                name: 'Расположение статуса',
+                description: 'Где показывать метки на постере'
+            },
             onChange: function (v) {
                 if (String(v) === '2') document.body.setAttribute('data-status-badge-style', '2');
                 else document.body.removeAttribute('data-status-badge-style');
@@ -263,16 +297,31 @@
             document.body.setAttribute('data-status-badge-style', '2');
         }
 
+        /* ----- Прогресс текущего сезона ----- */
         Lampa.SettingsApi.addParam({
             component: 'Local_Tricks',
             param: { name: 'season_badge_enabled', type: 'trigger', default: true },
-            field: { name: 'Прогресс сезона на карточках', description: 'S2 8/12 или S2 ✓' },
+            field: {
+                name: 'Прогресс сезона на карточках',
+                description: 'Например S2 8/12 или S2 ✓'
+            },
+            onChange: function () {}
+        });
+
+        /* ----- Инфо на полной карточке фильма/сериала ----- */
+        Lampa.SettingsApi.addParam({
+            component: 'Local_Tricks',
+            param: { name: 'full_card_info', type: 'trigger', default: true },
+            field: {
+                name: 'Инфо на полной карточке',
+                description: 'Рейтинг TMDB, статус, длительность, число сезонов и серий'
+            },
             onChange: function () {}
         });
     }
 
     /* =========================================================
-       2) СТАТУС СЕРИАЛА (status.js logic)
+       СТАТУС СЕРИАЛА (В эфире / Завершён / Пауза)
        ========================================================= */
     var statusCache = {};
 
@@ -280,6 +329,7 @@
         return Lampa.Storage.field('serial_status_enabled') != false;
     }
 
+    // Рисует метки на постере карточки
     function applyStatus(viewEl, data) {
         if (!statusEnabled() || !viewEl || !data || !isTv(data)) return;
 
@@ -342,10 +392,10 @@
     }
 
     /* =========================================================
-       3) ПРОГРЕСС СЕЗОНА (seasons.js logic)
+       ПРОГРЕСС СЕЗОНА (S2 8/12 или S2 ✓)
        ========================================================= */
     var seasonCache = {};
-    var SEASON_TTL = 24 * 60 * 60 * 1000;
+    var SEASON_TTL = 24 * 60 * 60 * 1000; // кеш на 24 часа
 
     try {
         seasonCache = JSON.parse(localStorage.getItem('localSeasonBadgeCache') || '{}');
@@ -357,6 +407,7 @@
         return Lampa.Storage.field('season_badge_enabled') != false;
     }
 
+    // Считает вышедшие серии текущего сезона
     function getSeasonProgress(tmdbData) {
         if (!tmdbData || !tmdbData.seasons || !tmdbData.last_episode_to_air) return null;
         var last = tmdbData.last_episode_to_air;
@@ -379,6 +430,7 @@
         };
     }
 
+    // Поднимает метку сезона над меткой качества, если она есть
     function adjustSeasonBadge(cardEl, badge) {
         if (!badge) return;
         var q = cardEl.querySelector('.card__quality');
@@ -391,6 +443,7 @@
         }
     }
 
+    // Добавляет метку прогресса сезона на карточку
     function addSeasonBadge(cardEl) {
         if (!seasonEnabled() || !cardEl || cardEl.getAttribute('data-season-processed')) return;
 
@@ -460,9 +513,7 @@
         });
     }
 
-    /* =========================================================
-       НАБЛЮДАТЕЛЬ ЗА КАРТОЧКАМИ
-       ========================================================= */
+    /* Обработка новой карточки в списке */
     function handleCard(node) {
         if (!node || node.nodeType !== 1) return;
         if (node.classList && node.classList.contains('card')) {
@@ -478,6 +529,7 @@
         }
     }
 
+    /* Следит за появлением новых карточек в интерфейсе */
     function startBadges() {
         var observer = new MutationObserver(function (mutations) {
             for (var m = 0; m < mutations.length; m++) {
@@ -498,7 +550,7 @@
             })(existing[i], i);
         }
 
-        /* полная карточка */
+        // Статус на постере полной карточки
         Lampa.Listener.follow('full', function (e) {
             if (e.type === 'complite' && e.data && e.data.movie) {
                 var poster = document.querySelector('.full-start-new__poster');
@@ -508,117 +560,94 @@
     }
 
     /* =========================================================
-       СТАРТ
+       ИНФО НА ПОЛНОЙ КАРТОЧКЕ
+       (рейтинг, статус, длительность, сезоны/серии)
        ========================================================= */
-    function boot() {
-        startUi();
-        startBadges();
+    function fmtRuntime(min) {
+        if (!min || min <= 0) return '';
+        var h = Math.floor(min / 60), m = min % 60;
+        if (h > 0 && m > 0) return h + ' ч ' + m + ' мин';
+        if (h > 0) return h + ' ч';
+        return m + ' мин';
     }
 
-    if (window.appready) boot();
-    else {
-        Lampa.Listener.follow('app', function (e) {
-            if (e.type === 'ready') boot();
-        });
-    } 
-    
-    /* ===== Инфо-строка на полной карточке (TMDB) ===== */
-        Lampa.SettingsApi.addParam({
-            component: 'Local_Tricks',
-            param: { name: 'full_card_info', type: 'trigger', default: true },
-            field: {
-                name: 'Инфо на полной карточке',
-                description: 'Рейтинг TMDB, возраст, статус, длительность, сезоны/серии'
-            },
-            onChange: function () {}
-        });
+    // Собирает и вставляет строку бейджей под заголовком
+    function buildFullInfo(movie) {
+        if (!movie || Lampa.Storage.field('full_card_info') == false) return;
 
-        function fmtRuntime(min) {
-            if (!min || min <= 0) return '';
-            var h = Math.floor(min / 60), m = min % 60;
-            if (h > 0 && m > 0) return h + ' ч ' + m + ' мин';
-            if (h > 0) return h + ' ч';
-            return m + ' мин';
+        $('#local-full-info').remove();
+
+        var bits = [];
+        var isSeries = !!(movie.name || movie.first_air_date || movie.number_of_seasons);
+
+        // Рейтинг TMDB
+        if (movie.vote_average && movie.vote_average > 0) {
+            bits.push('<span class="local-info-badge local-info-rate">★ ' +
+                Number(movie.vote_average).toFixed(1) + '</span>');
         }
 
-        function buildFullInfo(movie) {
-            if (!movie || Lampa.Storage.field('full_card_info') == false) return;
-
-            $('#local-full-info').remove();
-
-            var bits = [];
-            var isSeries = !!(movie.name || movie.first_air_date || movie.number_of_seasons);
-
-            /* рейтинг TMDB */
-            if (movie.vote_average && movie.vote_average > 0) {
-                bits.push('<span class="local-info-badge local-info-rate">★ ' +
-                    Number(movie.vote_average).toFixed(1) + '</span>');
-            }
-
-            /* статус */
-            if (movie.status) {
-                var stMap = {
-                    'Released': 'Выпущен',
-                    'Ended': 'Завершён',
-                    'Returning Series': 'В эфире',
-                    'In Production': 'В производстве',
-                    'Post Production': 'Постпродакшн',
-                    'Canceled': 'Отменён',
-                    'Cancelled': 'Отменён',
-                    'On Hiatus': 'Пауза'
-                };
-                bits.push('<span class="local-info-badge">' +
-                    (stMap[movie.status] || movie.status) + '</span>');
-            }
-
-            /* длительность */
-            if (isSeries) {
-                var epMin = 0;
-                if (movie.episode_run_time && movie.episode_run_time.length) {
-                    epMin = movie.episode_run_time[0];
-                }
-                if (epMin) bits.push('<span class="local-info-badge">Серия: ' + fmtRuntime(epMin) + '</span>');
-            } else if (movie.runtime) {
-                bits.push('<span class="local-info-badge">' + fmtRuntime(movie.runtime) + '</span>');
-            }
-
-            /* сезоны / серии */
-            if (isSeries) {
-                var seasons = movie.number_of_seasons || 0;
-                var episodes = movie.number_of_episodes || 0;
-                var se = [];
-                if (seasons) se.push(seasons + ' сез.');
-                if (episodes) se.push(episodes + ' сер.');
-                if (se.length) bits.push('<span class="local-info-badge">' + se.join(' · ') + '</span>');
-            }
-
-            if (!bits.length) return;
-
-            if (!$('#local-full-info-css').length) {
-                $('body').append(
-                    '<style id="local-full-info-css">' +
-                    '#local-full-info{display:flex;flex-wrap:wrap;gap:.4em;margin:.6em 0;align-items:center}' +
-                    '.local-info-badge{display:inline-block;padding:.25em .7em;border-radius:.5em;' +
-                    'background:rgba(255,255,255,.12);font-size:.95em;font-weight:600}' +
-                    '.local-info-rate{background:#f5c518;color:#111}' +
-                    '</style>'
-                );
-            }
-
-            var html = '<div id="local-full-info">' + bits.join('') + '</div>';
-            var $tag = $('.full-start-new__tagline, .full-start__tagline').first();
-            if ($tag.length) $tag.after(html);
-            else {
-                var $title = $('.full-start-new__title, .full-start__title').first();
-                if ($title.length) $title.after(html);
-            }
+        // Статус фильма/сериала
+        if (movie.status) {
+            var stMap = {
+                'Released': 'Выпущен',
+                'Ended': 'Завершён',
+                'Returning Series': 'В эфире',
+                'In Production': 'В производстве',
+                'Post Production': 'Постпродакшн',
+                'Canceled': 'Отменён',
+                'Cancelled': 'Отменён',
+                'On Hiatus': 'Пауза'
+            };
+            bits.push('<span class="local-info-badge">' + (stMap[movie.status] || movie.status) + '</span>');
         }
 
+        // Длительность фильма или одной серии
+        if (isSeries) {
+            var epMin = 0;
+            if (movie.episode_run_time && movie.episode_run_time.length) epMin = movie.episode_run_time[0];
+            if (epMin) bits.push('<span class="local-info-badge">Серия: ' + fmtRuntime(epMin) + '</span>');
+        } else if (movie.runtime) {
+            bits.push('<span class="local-info-badge">' + fmtRuntime(movie.runtime) + '</span>');
+        }
+
+        // Количество сезонов и серий
+        if (isSeries) {
+            var seasons = movie.number_of_seasons || 0;
+            var episodes = movie.number_of_episodes || 0;
+            var se = [];
+            if (seasons) se.push(seasons + ' сез.');
+            if (episodes) se.push(episodes + ' сер.');
+            if (se.length) bits.push('<span class="local-info-badge">' + se.join(' · ') + '</span>');
+        }
+
+        if (!bits.length) return;
+
+        if (!$('#local-full-info-css').length) {
+            $('body').append(
+                '<style id="local-full-info-css">' +
+                '#local-full-info{display:flex;flex-wrap:wrap;gap:.4em;margin:.6em 0;align-items:center}' +
+                '.local-info-badge{display:inline-block;padding:.25em .7em;border-radius:.5em;background:rgba(255,255,255,.12);font-size:.95em;font-weight:600}' +
+                '.local-info-rate{background:#f5c518;color:#111}' +
+                '</style>'
+            );
+        }
+
+        var html = '<div id="local-full-info">' + bits.join('') + '</div>';
+        var $tag = $('.full-start-new__tagline, .full-start__tagline').first();
+        if ($tag.length) $tag.after(html);
+        else {
+            var $title = $('.full-start-new__title, .full-start__title').first();
+            if ($title.length) $title.after(html);
+        }
+    }
+
+    // Подписка на открытие полной карточки
+    function startFullInfo() {
         Lampa.Listener.follow('full', function (e) {
             if (e.type !== 'complite' || !e.data || !e.data.movie) return;
             var movie = e.data.movie;
 
-            /* если не хватает полей — догружаем TMDB */
+            // Если не хватает данных — догружаем из TMDB
             var need = isTv(movie)
                 ? (!movie.episode_run_time || !movie.number_of_episodes || !movie.status)
                 : (!movie.runtime || !movie.status);
@@ -637,3 +666,21 @@
                 buildFullInfo(movie);
             }
         });
+    }
+
+    /* =========================================================
+       ЗАПУСК ПЛАГИНА
+       ========================================================= */
+    function boot() {
+        startUi();        // настройки и кнопка перезагрузки
+        startBadges();    // метки статуса и прогресса сезона
+        startFullInfo();  // инфо-строка на полной карточке
+    }
+
+    if (window.appready) boot();
+    else {
+        Lampa.Listener.follow('app', function (e) {
+            if (e.type === 'ready') boot();
+        });
+    }
+})();
