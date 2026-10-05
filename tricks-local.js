@@ -8,6 +8,7 @@
     var css = document.createElement('style');
     css.id = 'local-tricks-css';
     css.textContent = [
+        /* статус на мини-карточках */
         '.serial-status__type{position:absolute;left:0;top:.8em;padding:.2em .8em;font-size:.85em;border-radius:.5em;text-transform:uppercase;font-weight:700;z-index:2;background:#ff4242;color:#fff}',
         '.serial-status__status{position:absolute;left:0;top:2.7em;padding:.2em .8em;font-size:.85em;border-radius:.5em;text-transform:uppercase;font-weight:700;z-index:2}',
         '.serial-status__status[data-status="ended"]{background:#4CAF50;color:#fff}',
@@ -15,21 +16,39 @@
         '.serial-status__status[data-status="paused"],.serial-status__status[data-status="canceled"]{background:#FFC107;color:#222}',
         'body[data-status-badge-style="2"] .serial-status__type{top:0;left:0;border-radius:1.1em 0;background:rgba(0,0,0,.55)}',
         'body[data-status-badge-style="2"] .serial-status__status{top:0;left:auto;right:0;border-radius:0 1.1em;background:rgba(0,0,0,.55);color:#fff}',
-        '.card--season-complete,.card--season-progress{position:absolute;left:0;bottom:.5em;z-index:12;border-radius:0 .8em .8em 0;opacity:0;transition:opacity .2s}',
+
+        /* прогресс сезона */
+        '.card--season-complete,.card--season-progress{position:absolute;left:0;bottom:.5em;z-index:12;border-radius:0 .8em .8em 0;opacity:0;transition:opacity .2s;width:fit-content;max-width:calc(100% - 1em)}',
         '.card--season-complete{background:rgba(61,161,141,.9)}',
         '.card--season-progress{background:rgba(255,193,7,.9)}',
         '.card--season-complete div,.card--season-progress div{padding:.25em .45em;font-weight:700;font-size:1em;text-transform:uppercase}',
         '.card--season-complete div{color:#fff}',
         '.card--season-progress div{color:#000}',
         '.card--season-complete.show,.card--season-progress.show{opacity:1}',
+
+        /* часы в плеере */
         '#MyClockDiv{position:fixed;z-index:100;font-size:1.4em;font-weight:600;color:#fff;text-shadow:0 1px 4px #000;pointer-events:none;bottom:90%;right:90%}',
-        /* инфо на полной карточке */
-        '#local-full-info{margin:.6em 0;display:flex;flex-direction:column;gap:.45em;position:relative;z-index:5}',
-        '#local-full-info .local-runtime{display:inline-block;padding:.4em .85em;border-radius:.5em;background:rgba(38,198,218,.28);color:#7fdbef;font-size:1em;font-weight:700}',
-        '#local-full-info .local-badges{display:flex;flex-wrap:wrap;gap:.4em}',
-        '#local-full-info .local-info-badge{display:inline-block;padding:.3em .75em;border-radius:.5em;background:rgba(255,255,255,.14);font-size:.95em;font-weight:600}',
+
+        /* кнопка перезагрузки чуть крупнее */
+        '#RELOAD > div{width:1.75em!important;height:1.75em!important}',
+        '#RELOAD svg{width:26px!important;height:26px!important}',
+
+        /* инфо на полной карточке — компактно, как на скрине */
+        '#local-full-info{margin:.55em 0 .35em;display:flex;flex-direction:column;align-items:flex-start;gap:.5em;position:relative;z-index:5}',
+        '#local-full-info .local-runtime{' +
+            'display:inline-block;width:auto;max-width:100%;' +
+            'padding:.4em .9em;border-radius:.55em;' +
+            'background:rgba(38,198,218,.28);color:#8ee8f5;' +
+            'font-size:1.15em;font-weight:700;line-height:1.25;' +
+            'white-space:nowrap' +
+        '}',
+        '#local-full-info .local-badges{display:flex;flex-wrap:wrap;gap:.45em;align-items:center}',
+        '#local-full-info .local-info-badge{' +
+            'display:inline-block;padding:.35em .85em;border-radius:.55em;' +
+            'background:rgba(255,255,255,.14);font-size:1.08em;font-weight:700;line-height:1.2' +
+        '}',
         '#local-full-info .local-info-rate{background:#f5c518;color:#111}',
-        '#local-full-info .local-info-status{background:rgba(76,175,80,.35);color:#c8e6c9}'
+        '#local-full-info .local-info-status{background:rgba(76,175,80,.38);color:#d7f0d8}'
     ].join('\n');
     document.head.appendChild(css);
 
@@ -53,7 +72,7 @@
     }
 
     /* =========================================================
-       НАСТРОЙКИ + КНОПКА ПЕРЕЗАГРУЗКИ
+       НАСТРОЙКИ + КНОПКА
        ========================================================= */
     function startUi() {
         Lampa.SettingsApi.addComponent({
@@ -72,7 +91,7 @@
         Lampa.SettingsApi.addParam({
             component: 'Local_Tricks',
             param: { name: 'full_card_info', type: 'trigger', default: true },
-            field: { name: 'Инфо на полной карточке', description: 'Длительность, рейтинг TMDB, статус, сезоны' },
+            field: { name: 'Инфо на полной карточке', description: 'Длительность сверху, ниже рейтинг и статус' },
             onChange: function () {}
         });
 
@@ -226,14 +245,13 @@
             } else $('#NoTrailerMainPage').remove();
         }, 900);
 
-        /* кнопка: ставим сразу и повторяем (шапка может появиться позже) */
         placeReloadBtn(true);
         setInterval(function () { placeReloadBtn(false); }, 2000);
     }
 
-    /* Две оранжевые стрелки (без круглой заливки) */
+    /* две оранжевые стрелки, без заливки круга */
     var SVG_RELOAD =
-        '<svg viewBox="0 0 24 24" width="22" height="22" xmlns="http://www.w3.org/2000/svg">' +
+        '<svg viewBox="0 0 24 24" width="26" height="26" xmlns="http://www.w3.org/2000/svg">' +
         '<path fill="#FF9800" d="M17.65 6.35A7.95 7.95 0 0 0 12 4V1L7 6l5 5V7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.35 1.83l1.52.87C18.7 13.72 19 12.89 19 12c0-2.21-.9-4.21-2.35-5.65zM12 17c-2.76 0-5-2.24-5-5 0-.65.13-1.26.35-1.83l-1.52-.87C5.3 10.28 5 11.11 5 12c0 3.87 3.13 7 7 7v3l5-5-5-5v3z"/>' +
         '</svg>';
 
@@ -249,7 +267,7 @@
         if (force || !$('#RELOAD').length) {
             $('#RELOAD').remove();
             var $b = $('<div class="head__action selector" id="RELOAD" title="Перезагрузка">' +
-                '<div style="width:1.5em;height:1.5em;display:flex;align-items:center;justify-content:center">' +
+                '<div style="width:1.75em;height:1.75em;display:flex;align-items:center;justify-content:center">' +
                 SVG_RELOAD + '</div></div>');
             $b.on('hover:enter hover:click hover:touch', function () {
                 location.reload();
@@ -423,6 +441,7 @@
 
     /* =========================================================
        ИНФО НА ПОЛНОЙ КАРТОЧКЕ
+       Порядок: 1) длительность  2) рейтинг + статус + сезоны
        ========================================================= */
     function fmtRuntime(min) {
         if (!min || min <= 0) return '';
@@ -441,6 +460,7 @@
         var runtimeText = '';
         var parts = [];
 
+        /* 1. Длительность — сверху */
         if (series) {
             var ep = 0;
             if (movie.episode_run_time && movie.episode_run_time.length) ep = movie.episode_run_time[0];
@@ -450,6 +470,7 @@
             runtimeText = 'Длительность фильма: ' + fmtRuntime(movie.runtime);
         }
 
+        /* 2. Рейтинг и статус — снизу */
         if (movie.vote_average && movie.vote_average > 0) {
             parts.push('<span class="local-info-badge local-info-rate">★ ' + Number(movie.vote_average).toFixed(1) + ' TMDB</span>');
         }
@@ -515,24 +536,21 @@
             var id = movie.id || movie.tmdb_id;
             var path = (isTv(movie) ? 'tv/' : 'movie/') + id;
 
-            /* всегда догружаем TMDB — так точно будет runtime/status */
             if (id) {
                 tmdbGet(path, function (json) {
                     if (json) {
-                        for (var k in json) {
-                            if (movie[k] == null || movie[k] === '' || movie[k] === 0) movie[k] = json[k];
-                        }
                         if (json.runtime) movie.runtime = json.runtime;
                         if (json.episode_run_time) movie.episode_run_time = json.episode_run_time;
                         if (json.status) movie.status = json.status;
                         if (json.vote_average) movie.vote_average = json.vote_average;
                         if (json.number_of_seasons) movie.number_of_seasons = json.number_of_seasons;
                         if (json.number_of_episodes) movie.number_of_episodes = json.number_of_episodes;
+                        if (json.last_episode_to_air) movie.last_episode_to_air = json.last_episode_to_air;
                     }
-                    setTimeout(function () { buildFullInfo(movie); }, 100);
+                    setTimeout(function () { buildFullInfo(movie); }, 120);
                 });
             } else {
-                setTimeout(function () { buildFullInfo(movie); }, 100);
+                setTimeout(function () { buildFullInfo(movie); }, 120);
             }
         }
 
