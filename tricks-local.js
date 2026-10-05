@@ -91,18 +91,12 @@
             '<path fill="#FF9800" d="M17.65 6.35A7.95 7.95 0 0 0 12 4V1L7 6l5 5V7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.35 1.83l1.52.87C18.7 13.72 19 12.89 19 12c0-2.21-.9-4.21-2.35-5.65zM12 17c-2.76 0-5-2.24-5-5 0-.65.13-1.26.35-1.83l-1.52-.87C5.3 10.28 5 11.11 5 12c0 3.87 3.13 7 7 7v3l5-5-5-5v3z"/>' +
             '</svg>';
 
-        var $actions = $('#app > div.head > div > div.head__actions');
+               var $actions = $('#app > div.head > div > div.head__actions');
         if ($actions.length) {
-            // Убираем старые кнопки консоли и выхода, если были
-            $('#CONSOLE, #my_top_exit, #ExitButton').remove();
-
-            if (!$('#RELOAD').length) {
-                $actions.append(makeBtn('RELOAD', 'Перезагрузка', svgReload, function () {
-                    location.reload(); // Перезагрузка страницы Lampa
-                }));
-            } else {
-                $('#RELOAD').find('div').html(svgReload);
-            }
+            $('#CONSOLE, #my_top_exit, #ExitButton, #RELOAD').remove();
+            $actions.append(makeBtn('RELOAD', 'Перезагрузка', svgReload, function () {
+                location.reload();
+            }));
         }
 
         // Показать / скрыть кнопку перезагрузки
