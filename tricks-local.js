@@ -86,14 +86,9 @@
         }
 
         // Оранжевый кружок с двумя стрелками
-        var svgReload =
+               var svgReload =
             '<svg viewBox="0 0 24 24" width="22" height="22" xmlns="http://www.w3.org/2000/svg">' +
-            '<path fill="none" stroke="#FF9800" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" ' +
-            'd="M20 12a8 8 0 0 0-14.5-4.9"/>' +
-            '<path fill="#FF9800" d="M5.5 3.5v4.5h4.5"/>' +
-            '<path fill="none" stroke="#FF9800" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" ' +
-            'd="M4 12a8 8 0 0 0 14.5 4.9"/>' +
-            '<path fill="#FF9800" d="M18.5 20.5v-4.5h-4.5"/>' +
+            '<path fill="#FF9800" d="M17.65 6.35A7.95 7.95 0 0 0 12 4V1L7 6l5 5V7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.35 1.83l1.52.87C18.7 13.72 19 12.89 19 12c0-2.21-.9-4.21-2.35-5.65zM12 17c-2.76 0-5-2.24-5-5 0-.65.13-1.26.35-1.83l-1.52-.87C5.3 10.28 5 11.11 5 12c0 3.87 3.13 7 7 7v3l5-5-5-5v3z"/>' +
             '</svg>';
 
         var $actions = $('#app > div.head > div > div.head__actions');
