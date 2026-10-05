@@ -520,9 +520,9 @@
         Lampa.Listener.follow('app', function (e) {
             if (e.type === 'ready') boot();
         });
-    }
-})();
- /* ===== Инфо-строка на полной карточке (TMDB) ===== */
+    } 
+    
+    /* ===== Инфо-строка на полной карточке (TMDB) ===== */
         Lampa.SettingsApi.addParam({
             component: 'Local_Tricks',
             param: { name: 'full_card_info', type: 'trigger', default: true },
